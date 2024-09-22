@@ -7,4 +7,10 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="CaretakerCore.NET" Version="1.0.2" />
+    <PackageReference Include="CaretakerCoreDiscord.NET" Version="1.0.0" />
+    <PackageReference Include="YamlDotNet" Version="16.1.2" />
+  </ItemGroup>
+
 </Project>
