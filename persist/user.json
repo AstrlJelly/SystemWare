@@ -1,9 +1,39 @@
 {
-  "1286879575288053862": {
+  "1286922694075355147": {
     "CurrentAutoProxyWare": null,
-    "IsInServer": true,
-    "UserId": 1286879575288053862,
-    "Username": "SystemWare",
+    "IsInServer": false,
+    "UserId": 1286922694075355147,
+    "Username": "",
+    "AllWares": {},
+    "CurrentAutoProxy": "",
+    "Timeout": 0,
+    "NeedsUpdating": false
+  },
+  "1287293570083979264": {
+    "CurrentAutoProxyWare": null,
+    "IsInServer": false,
+    "UserId": 1287293570083979264,
+    "Username": "",
+    "AllWares": {},
+    "CurrentAutoProxy": "",
+    "Timeout": 0,
+    "NeedsUpdating": false
+  },
+  "1287293931364683777": {
+    "CurrentAutoProxyWare": null,
+    "IsInServer": false,
+    "UserId": 1287293931364683777,
+    "Username": "",
+    "AllWares": {},
+    "CurrentAutoProxy": "",
+    "Timeout": 0,
+    "NeedsUpdating": false
+  },
+  "1287293964856328203": {
+    "CurrentAutoProxyWare": null,
+    "IsInServer": false,
+    "UserId": 1287293964856328203,
+    "Username": "",
     "AllWares": {},
     "CurrentAutoProxy": "",
     "Timeout": 0,
@@ -14,6 +44,26 @@
     "IsInServer": true,
     "UserId": 438296397452935169,
     "Username": "astrljelly",
+    "AllWares": {},
+    "CurrentAutoProxy": "",
+    "Timeout": 1726990840342,
+    "NeedsUpdating": false
+  },
+  "716390085896962058": {
+    "CurrentAutoProxyWare": null,
+    "IsInServer": true,
+    "UserId": 716390085896962058,
+    "Username": "Pok\u00E9two",
+    "AllWares": {},
+    "CurrentAutoProxy": "",
+    "Timeout": 0,
+    "NeedsUpdating": false
+  },
+  "1286879575288053862": {
+    "CurrentAutoProxyWare": null,
+    "IsInServer": true,
+    "UserId": 1286879575288053862,
+    "Username": "SystemWare",
     "AllWares": {},
     "CurrentAutoProxy": "",
     "Timeout": 0,

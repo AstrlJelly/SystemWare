@@ -103,6 +103,7 @@ namespace SystemWare
         {
             _ = Persist.Save();
             await Task.Delay(30000);
+            SaveLoop();
         }
 
         private Task OnMessageReceieved(SocketMessage message)
@@ -126,7 +127,9 @@ namespace SystemWare
             }
             else if (u.AllWares.Count > 0)
             {
-                HandleWare(msg, u);
+                if (s != null) {
+                    HandleWare(msg, s, u);
+                }
             }
             else
             {
@@ -204,7 +207,7 @@ namespace SystemWare
             // typing.Dispose();
         }
 
-        private async void HandleWare(IUserMessage msg, UserPersist u)
+        private async void HandleWare(IUserMessage msg, GuildPersist s, UserPersist u)
         {
             // yes, it's cool to send multiple messages at once.
             // but does it really have any real use?? i never see people use it
@@ -223,40 +226,94 @@ namespace SystemWare
                 }
             }
             if (replyWare != null && msg.Channel is IIntegrationChannel channel) {
-                IReadOnlyCollection<IWebhook> allWebhooks = await channel.GetWebhooksAsync();
-                IWebhook? webhook = allWebhooks.FirstOrDefault(w => w.Creator.Id == SYSTEMWARE_ID && w.Name == nameof(SystemWare));
-                webhook ??= await channel.CreateWebhookAsync(replyWare.name);
+                var cachedWebhook = s.GetCachedWareWebhook(channel);
+                IWebhook? webhook = cachedWebhook?.Webhook;
+                bool alreadyCached = webhook != null;
+                if (webhook == null)
+                {
+                    CaretakerCore.Log("SOMETHING'S WRONG!!!!!!!");
+                    IReadOnlyCollection<IWebhook> allWebhooks = await channel.GetWebhooksAsync();
+                    webhook = allWebhooks.FirstOrDefault(w => w.Creator.Id == SYSTEMWARE_ID);
+                }
+
+                if (webhook == null)
+                {
+                    CaretakerCore.Log("SOMETHING'S WRONG!!!!!!!");
+                    webhook = await channel.CreateWebhookAsync("SystemWare");
+                }
+
+                Stopwatch sw = new();
+                // var lastAvatarUrl = cachedWebhook?.LastAvatarUrl;
+                // var newAvatarUrl = webhook.GetAvatarUrl(ImageFormat.Png);
+                // CaretakerCore.Log("LastAvatarUrl : " + lastAvatarUrl);
+                // CaretakerCore.Log("GetAvatarUrl : " + newAvatarUrl);
+                // // if (cachedWebhook == null || lastAvatarUrl != newAvatarUrl)
+                // {
+                //     sw.Start();
+                //     await webhook.ModifyAsync(w => {
+                //         // w.Image = new Image("https://avatars.githubusercontent.com/u/1087378?s=48&v=4");
+                //         w.Name = replyWare.name;
+                //     });
+                //     sw.Stop();
+                //     CaretakerCore.Log("ModifyAsync ms : " + sw.Elapsed.TotalMilliseconds);
+                // }
+
+                if (cachedWebhook != null)
+                {
+                    // cachedWebhook.LastAvatarUrl = newAvatarUrl;
+                }
+                else
+                {
+                    s.AddCachedWebhook(channel, webhook);
+                }
+
                 var webhookClient = new DiscordWebhookClient(webhook);
+                await webhookClient.ModifyWebhookAsync(w => {
+                    // w.Image = new Image("https://avatars.githubusercontent.com/u/1087378?s=48&v=4");
+                    w.Name = replyWare.name;
+                });
 
                 AllowedMentionTypes pings = AllowedMentionTypes.None;
                 if (msg.MentionedRoleIds.Count > 0) pings |= AllowedMentionTypes.Roles;
                 if (msg.MentionedUserIds.Count > 0) pings |= AllowedMentionTypes.Users;
                 if (msg.MentionedEveryone)          pings |= AllowedMentionTypes.Everyone;
-                await webhookClient.SendMessageAsync(
-                    reply,
-                    msg.IsTTS,
-                    (IEnumerable<Embed>)msg.Embeds,
-                    replyWare.DisplayName,
-                    null, // avatar, replace later
-                    RequestOptions.Default,
-                    new AllowedMentions(pings),
-                    null, // msg.Components,
-                    msg.Flags ?? MessageFlags.None,
-                    msg.Thread?.Id,
-                    msg.Thread?.Name,
-                    msg.Tags.Select(t => t.Key).ToArray(),
-                    (msg.Poll is Poll poll ?
-                    new PollProperties()
-                    {
-                        Question = new PollMediaProperties {
-                            Text = poll.Question.Text
-                        },
-                        Answers = (List<PollMediaProperties>)poll.Answers,
-                        Duration = (uint)(poll.ExpiresAt - DateTimeOffset.Now).TotalHours,
-                        AllowMultiselect = poll.AllowMultiselect,
-                        LayoutType = poll.LayoutType,
-                    } : null)
-                );
+                sw.Restart();
+                // await webhookClient.SendMessageAsync(
+                //     reply,
+                //     msg.IsTTS,
+                //     (IEnumerable<Embed>)msg.Embeds,
+                //     replyWare.DisplayName,
+                //     null, // avatar, replace later
+                //     RequestOptions.Default,
+                //     new AllowedMentions(pings),
+                //     null, // msg.Components,
+                //     msg.Flags ?? MessageFlags.None,
+                //     msg.Thread?.Id,
+                //     msg.Thread?.Name,
+                //     msg.Tags.Select(t => t.Key).ToArray(),
+                //     (msg.Poll is Poll poll ?
+                //     new PollProperties()
+                //     {
+                //         Question = new PollMediaProperties {
+                //             Text = poll.Question.Text
+                //         },
+                //         Answers = (List<PollMediaProperties>)poll.Answers,
+                //         Duration = (uint)(poll.ExpiresAt - DateTimeOffset.Now).TotalHours,
+                //         AllowMultiselect = poll.AllowMultiselect,
+                //         LayoutType = poll.LayoutType,
+                //     } : null)
+                // );
+                await webhookClient.SendMessageAsync(reply);
+                sw.Stop();
+                CaretakerCore.Log("send message ms : " + sw.Elapsed.TotalMilliseconds);
+
+                // reset webhook
+                // possible issue!! if this happens during another ware using it, it could reset.
+                // if you ever see SystemWare as a ware, it's probably this!!
+                _ = webhook.ModifyAsync(w => {
+                    w.Image = null;
+                    w.Name = "SystemWare";
+                });
             }
         }
     }

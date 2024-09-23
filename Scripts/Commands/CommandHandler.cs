@@ -254,7 +254,7 @@ namespace SystemWare.Commands
                     if (!paramDict.ContainsKey(param.Name))
                     {
                         if (param.Required) {
-                            await HelpReply(msg, com.Name, true);
+                            await HelpReply(msg, commandName, true);
                             return false;
                         }
                         // convert if it's needed; if the preset is a string but the param type is not supposed to be a string
